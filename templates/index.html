@@ -14,10 +14,7 @@
       text-align: center;
     }
 
-    h1 {
-      color: #ffbebe;
-      margin-top: 30px;
-    }
+    h1 { color: #ffbebe; margin-top: 30px; }
 
     .container {
       margin: 40px auto;
@@ -51,10 +48,7 @@
       margin: 5px;
     }
 
-    button:hover, .btn:hover {
-      background-color: #2e7d32;
-      transform: scale(1.05);
-    }
+    button:hover, .btn:hover { background-color: #2e7d32; transform: scale(1.05); }
 
     video, canvas {
       border-radius: 15px;
@@ -116,16 +110,9 @@
 
     .hidden { display: none; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    footer {
-      margin-top: 40px;
-      color: #ddd;
-      font-size: 0.9em;
-    }
+    footer { margin-top: 40px; color: #ddd; font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -178,7 +165,6 @@
       e.preventDefault();
       const fileInput = document.getElementById('imageUpload');
       const nameInput = document.getElementById('name').value.trim();
-
       if (!nameInput) return alert("Please enter your name!");
 
       const formData = new FormData();
@@ -199,17 +185,29 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageData = canvas.toDataURL('image/png');
 
-      const res = await fetch('/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ webcam: imageData, name: nameInput })
-      });
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webcam: imageData, name: nameInput })
+        });
+        const data = await res.json();
 
-      const data = await res.json();
-      showResult(data);
+        if (data.error) {
+          alert('⚠️ ' + data.error);
+          return;
+        }
+
+        predictedImage.src = 'data:image/jpeg;base64,' + data.image;
+        emotionTag.textContent = data.emotion.charAt(0).toUpperCase() + data.emotion.slice(1);
+        emotionTag.className = data.emotion.toLowerCase();
+        resultCard.classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error sending webcam image to server.");
+      }
     });
 
-    // Show prediction result
     function showResult(data) {
       if (data.error) {
         alert('⚠️ ' + data.error);
@@ -218,9 +216,7 @@
 
       predictedImage.src = 'data:image/jpeg;base64,' + data.image;
       emotionTag.textContent = data.emotion.charAt(0).toUpperCase() + data.emotion.slice(1);
-
-      emotionTag.className = '';
-      emotionTag.classList.add(data.emotion.toLowerCase());
+      emotionTag.className = data.emotion.toLowerCase();
       resultCard.classList.remove('hidden');
     }
   </script>
