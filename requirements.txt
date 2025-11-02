@@ -1,19 +1,10 @@
-# Core
-Flask==2.3.4
+Flask==2.3.3
 numpy==1.26.0
 Pillow==10.0.1
 gdown==4.7.1
-
-# TensorFlow (CPU version; server-friendly)
 tensorflow-cpu==2.13.0
-
-# OpenCV (headless version avoids GUI-related builds)
 opencv-python-headless==4.8.1.78
-
-# Optional for smoother JSON handling
 requests==2.31.0
-
-# Upgrade pip tools to avoid build errors
 pip>=23.3
 setuptools>=68.0
 wheel>=0.40.0
