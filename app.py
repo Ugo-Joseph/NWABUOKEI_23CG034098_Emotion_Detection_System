@@ -59,7 +59,6 @@ def index():
     """Homepage."""
     return render_template('index.html')
 
-
 @app.route('/predict', methods=['POST'])
 def predict():
     """Handle uploaded image or webcam snapshot and return prediction."""
