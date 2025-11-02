@@ -7,24 +7,42 @@ import io
 import base64
 import os
 from datetime import datetime
+import gdown  # Make sure to install: pip install gdown
 
 app = Flask(__name__)
 
-# ✅ Load the trained model
+# -----------------------------
+# 1️⃣ Google Drive model download
+# -----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "creative_model_name.h5")
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"❌ Model not found at {MODEL_PATH}. Please train it first using model.py")
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+MODEL_FILENAME = "creative_model_name.h5"
+MODEL_PATH = os.path.join(MODEL_DIR, MODEL_FILENAME)
 
+# Replace with your Google Drive file ID
+FILE_ID = "1gNpZGPAhAHaUwLntlnn5ZqAXhcCkfZ5n"
+URL = f"https://drive.google.com/uc?id={FILE_ID}"
+
+# Download the model if it doesn't exist locally
+if not os.path.exists(MODEL_PATH):
+    print("⬇️ Downloading model from Google Drive...")
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    gdown.download(URL, MODEL_PATH, quiet=False)
+else:
+    print("✅ Model already exists locally.")
+
+# Load the model
 model = load_model(MODEL_PATH)
 
-# ✅ Class labels (same as your training data)
+# -----------------------------
+# 2️⃣ Class labels & face detection
+# -----------------------------
 class_labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised']
-
-# ✅ Haar Cascade for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-
+# -----------------------------
+# 3️⃣ Helper function to preprocess face
+# -----------------------------
 def preprocess_face(face_img, target_size=(48, 48)):
     """Resize, normalize, and reshape the face for CNN model input."""
     face = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
@@ -33,12 +51,13 @@ def preprocess_face(face_img, target_size=(48, 48)):
     face = np.expand_dims(face, axis=(0, -1))
     return face
 
-
+# -----------------------------
+# 4️⃣ Routes
+# -----------------------------
 @app.route('/')
 def index():
     """Homepage."""
     return render_template('index.html')
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -59,7 +78,6 @@ def predict():
         img_bytes = base64.b64decode(img_data.split(',')[1])
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
 
-    # --- If no image provided ---
     if img is None:
         return jsonify({'error': 'No image provided'})
 
@@ -107,6 +125,8 @@ def predict():
 
     return jsonify({'emotion': emotion, 'image': img_b64})
 
-
+# -----------------------------
+# Run the app
+# -----------------------------
 if __name__ == '__main__':
     app.run(debug=True)

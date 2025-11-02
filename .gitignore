@@ -1,9 +1,43 @@
+# Python bytecode
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-env/
+
+# Virtual environment
 venv/
-*.db
+env/
+ENV/
+.venv/
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Models folder (do NOT push large .h5 files)
+models/*.h5
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Database files (if you previously had SQLite)
+*.db
+*.sqlite3
+
+# Node modules (if using frontend build tools)
+node_modules/
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+*.cover
+*.py,cover
